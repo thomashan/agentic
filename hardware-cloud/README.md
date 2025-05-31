@@ -36,6 +36,7 @@ As with the rest of the lists, this list is no means to be exhaustive but serves
 * [Supabase Edge Functions](https://supabase.com/docs/guides/functions) (for serverless functions at the edge)
 * [Cloudflare Pages Functions](https://developers.cloudflare.com/pages/functions/) (for serverless functions at the
   edge)
+* [Run Pod](https://www.runpod.io/)
 
 ## Tried
 
