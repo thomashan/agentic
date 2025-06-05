@@ -24,7 +24,15 @@ I am working on a section at a time to deep-dive into each topic, so please be p
 
 [LLM](./llm/README.md)
 
+[MCP](./mcp/README.md)
+
 [Music](./music/README.md)
+
+[Node](./node/README.md)
+
+[Python](./python/README.md)
+
+[RAG](./rag/README.md)
 
 [Sound](./sound/README.md)
 
