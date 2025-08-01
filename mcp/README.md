@@ -14,7 +14,26 @@ MCP enables applications to effectively communicate context, requirements, and c
 ## Key Features
 
 - Structured context management
-- Standardized communication format
+- Standardised communication format
 - Cross-platform compatibility
 - Extensible protocol design
 - Built-in version control
+
+## Architecture
+
+The Model Context Protocol (MCP) is designed to enable AI models to interact seamlessly with external tools and services. It acts as a bridge between AI models and external services, creating a standardized communication
+framework that enhances tool integration, accessibility, and AI reasoning capabilities.
+
+### Key Components of MCP
+
+* MCP Host: The AI model (e.g., Azure OpenAI GPT) requesting data or actions.
+* MCP Client: An intermediary service that forwards the AI model's requests to MCP servers.
+* MCP Server: Lightweight applications that expose specific capabilities (APIs, databases, files, etc.).
+* Data Sources: Various backend systems, including local storage, cloud databases, and external APIs.
+
+### Data Flow in MCP
+
+1. The AI model sends a request (e.g., "fetch user profile data").
+2. The MCP client forwards the request to the appropriate MCP server.
+3. The MCP server retrieves the required data from a database or API.
+4. The response is sent back to the AI model via the MCP client.
