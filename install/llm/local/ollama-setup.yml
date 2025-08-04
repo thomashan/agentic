@@ -1,0 +1,263 @@
+---
+- name: Setup Ollama on macOS and Linux
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  become: false
+
+  vars:
+    ollama_port: 11434
+    ollama_container_name: ollama
+    ollama_volume_name: ollama
+
+  tasks:
+    - name: Debug OS information
+      debug:
+        msg: "Detected OS: {{ ansible_system }}, Distribution: {{ ansible_distribution | default('N/A') }}"
+
+    - name: macOS - Install Ollama via Homebrew
+      community.general.homebrew:
+        name: ollama
+        state: present
+      when: ansible_system == "Darwin"
+      register: ollama_install_result
+
+    - name: macOS - Confirm Ollama installation
+      debug:
+        msg: "✅ Ollama installed successfully on macOS"
+      when: ansible_system == "Darwin" and ollama_install_result is changed
+
+    - name: macOS - Ollama already installed message
+      debug:
+        msg: "✅ Ollama is already installed on macOS"
+      when: ansible_system == "Darwin" and not ollama_install_result is changed
+
+    # Linux Tasks
+    - name: Linux - Check if Docker is installed
+      command: which docker
+      register: docker_check
+      failed_when: false
+      changed_when: false
+      when: ansible_system == "Linux"
+
+    # Docker installation for different Linux distributions
+    - name: Linux - Install Docker on Ubuntu/Debian
+      block:
+        - name: Update apt cache
+          apt:
+            update_cache: true
+          become: true
+
+        - name: Install required packages for Docker
+          apt:
+            name:
+              - apt-transport-https
+              - ca-certificates
+              - curl
+              - gnupg
+              - lsb-release
+            state: present
+          become: true
+
+        - name: Add Docker GPG key
+          apt_key:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            state: present
+          become: true
+
+        - name: Add Docker repository
+          apt_repository:
+            repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release }} stable"
+            state: present
+          become: true
+
+        - name: Install Docker
+          apt:
+            name:
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io
+            state: present
+          become: true
+
+        - name: Start and enable Docker service
+          systemd:
+            name: docker
+            state: started
+            enabled: true
+          become: true
+
+        - name: Add current user to docker group
+          user:
+            name: "{{ ansible_user_id }}"
+            groups: docker
+            append: true
+          become: true
+          notify: restart_session
+
+      when: ansible_system == "Linux" and docker_check.rc != 0 and ansible_distribution in ['Ubuntu', 'Debian']
+
+    - name: Linux - Install Docker on CentOS/RHEL/Fedora
+      block:
+        - name: Install required packages for Docker
+          package:
+            name:
+              - yum-utils
+              - device-mapper-persistent-data
+              - lvm2
+            state: present
+          become: true
+          when: ansible_distribution in ['CentOS', 'RedHat']
+
+        - name: Add Docker repository (CentOS/RHEL)
+          get_url:
+            url: https://download.docker.com/linux/centos/docker-ce.repo
+            dest: /etc/yum.repos.d/docker-ce.repo
+          become: true
+          when: ansible_distribution in ['CentOS', 'RedHat']
+
+        - name: Install Docker (CentOS/RHEL)
+          package:
+            name:
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io
+            state: present
+          become: true
+          when: ansible_distribution in ['CentOS', 'RedHat']
+
+        - name: Install Docker (Fedora)
+          dnf:
+            name:
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io
+            state: present
+          become: true
+          when: ansible_distribution == 'Fedora'
+
+        - name: Start and enable Docker service
+          systemd:
+            name: docker
+            state: started
+            enabled: true
+          become: true
+
+        - name: Add current user to docker group
+          user:
+            name: "{{ ansible_user_id }}"
+            groups: docker
+            append: true
+          become: true
+
+      when: ansible_system == "Linux" and docker_check.rc != 0 and ansible_distribution in ['CentOS', 'RedHat', 'Fedora']
+
+    - name: Linux - Wait for Docker to be ready
+      wait_for:
+        port: 2375
+        host: localhost
+        timeout: 30
+      ignore_errors: true
+      when: ansible_system == "Linux"
+
+    - name: Linux - Check if Ollama container is already running
+      command: docker ps --format '{{.Names}}'
+      register: running_containers
+      changed_when: false
+      when: ansible_system == "Linux"
+
+    - name: Linux - Check GPU support
+      block:
+        - name: Check for NVIDIA GPU runtime
+          command: docker info
+          register: docker_info
+          changed_when: false
+
+        - name: Test GPU runtime with CUDA
+          command: docker run --gpus all --rm nvidia/cuda:12.3.0-base nvidia-smi
+          register: gpu_test
+          failed_when: false
+          changed_when: false
+
+        - name: Set GPU support fact
+          set_fact:
+            gpu_supported: "{{ 'nvidia' in docker_info.stdout.lower() or gpu_test.rc == 0 }}"
+      when: ansible_system == "Linux"
+
+    - name: Linux - Start Ollama container with GPU support
+      command: >
+        docker run -d --gpus=all 
+        -v {{ ollama_volume_name }}:/root/.ollama 
+        -p {{ ollama_port }}:{{ ollama_port }} 
+        --name {{ ollama_container_name }} 
+        ollama/ollama
+      register: ollama_gpu_start
+      failed_when: false
+      when: ansible_system == "Linux" and ollama_container_name not in running_containers.stdout_lines and gpu_supported | default(false)
+
+    - name: Linux - Start Ollama container (CPU-only fallback)
+      command: >
+        docker run -d 
+        -v {{ ollama_volume_name }}:/root/.ollama 
+        -p {{ ollama_port }}:{{ ollama_port }} 
+        --name {{ ollama_container_name }} 
+        ollama/ollama
+      when: ansible_system == "Linux" and ollama_container_name not in running_containers.stdout_lines and (not gpu_supported | default(false) or ollama_gpu_start.rc != 0)
+      register: ollama_cpu_start
+
+    - name: Linux - Container already running message
+      debug:
+        msg: "✅ Ollama container is already running"
+      when: ansible_system == "Linux" and ollama_container_name in running_containers.stdout_lines
+
+    - name: Linux - Container started message
+      debug:
+        msg: "✅ Ollama container started successfully {{ '(with GPU support)' if ollama_gpu_start is defined and ollama_gpu_start.rc == 0 else '(CPU-only)' }}"
+      when: ansible_system == "Linux" and ((ollama_gpu_start is defined and ollama_gpu_start.rc == 0) or (ollama_cpu_start is defined and ollama_cpu_start.rc == 0))
+
+    # Start Ollama service
+    - name: macOS - Start Ollama service
+      block:
+        - name: Check if Ollama is already running
+          uri:
+            url: "http://localhost:{{ ollama_port }}"
+            method: GET
+          register: ollama_status
+          failed_when: false
+          changed_when: false
+
+        - name: Start Ollama serve (background process)
+          shell: nohup ollama serve > /dev/null 2>&1 &
+          when: ollama_status.status != 200
+
+        - name: Wait for Ollama to start
+          wait_for:
+            port: "{{ ollama_port }}"
+            host: localhost
+            timeout: 30
+          when: ollama_status.status != 200
+
+        - name: Ollama service status
+          debug:
+            msg: "✅ Ollama is {{ 'already running' if ollama_status.status == 200 else 'now running' }} on http://localhost:{{ ollama_port }}"
+
+      when: ansible_system == "Darwin"
+
+    - name: Linux - Check Ollama service status
+      uri:
+        url: "http://localhost:{{ ollama_port }}"
+        method: GET
+      register: linux_ollama_status
+      failed_when: false
+      changed_when: false
+      when: ansible_system == "Linux"
+
+    - name: Linux - Ollama service status
+      debug:
+        msg: "{{ '✅ Ollama is running on http://localhost:' + ollama_port|string if linux_ollama_status.status == 200 else '❌ Ollama service is not responding' }}"
+      when: ansible_system == "Linux"
+
+  handlers:
+    - name: restart_session
+      debug:
+        msg: "Please log out and log back in for Docker group changes to take effect"
