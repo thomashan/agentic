@@ -1,4 +1,3 @@
-# .github/workflows/make.yml
 name: Run Make
 
 on: [ push ]
@@ -17,5 +16,5 @@ jobs:
       - name: Print uname -m
         run: uname -m
 
-      - name: Run make
-        run: make
+      - name: Run ansible
+        run: ansible-playbook install/prerequisite/main.yml
