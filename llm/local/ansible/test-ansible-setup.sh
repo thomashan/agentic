@@ -5,6 +5,15 @@
 
 set -e
 
+# Figure out where this script lives and where the Ansible assets are
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ANSIBLE_DIR="$SCRIPT_DIR"
+PLAYBOOK="$ANSIBLE_DIR/ollama-setup.yml"
+INV_FILE="$ANSIBLE_DIR/inventory"
+
+# Helper function for running ansible-playbook
+run_ansible() { ansible-playbook -i "$INV_FILE" "$PLAYBOOK" "$@"; }
+
 echo "🧪 Testing Ansible Ollama Setup"
 echo "================================"
 echo ""
@@ -35,7 +44,7 @@ print_error() {
 # Function to run ansible playbook
 run_playbook() {
     print_status "Running Ansible playbook..."
-    ansible-playbook -i inventory ollama-setup.yml -v > /tmp/ansible-output.log 2>&1
+    run_ansible -v > /tmp/ansible-output.log 2>&1
     local exit_code=$?
     if [ $exit_code -eq 0 ]; then
         print_success "Ansible playbook completed successfully"
@@ -96,7 +105,7 @@ echo "----------------------------------------"
 print_status "Running playbook again to test idempotency..."
 
 # Capture output to check for idempotent behavior
-ansible-playbook -i inventory ollama-setup.yml > /tmp/ansible-idempotent.log 2>&1
+run_ansible > /tmp/ansible-idempotent.log 2>&1
 idempotent_exit_code=$?
 
 if [ $idempotent_exit_code -eq 0 ]; then

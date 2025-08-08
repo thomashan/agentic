@@ -6,12 +6,16 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLAYBOOK="$SCRIPT_DIR/ollama-setup.yml"
-INVENTORY="$SCRIPT_DIR/inventory"
+ANSIBLE_DIR="$SCRIPT_DIR"
+PLAYBOOK="$ANSIBLE_DIR/ollama-setup.yml"
+INV_FILE="$ANSIBLE_DIR/inventory"
+
+# Helper function for running ansible-playbook
+run_ansible() { ansible-playbook -i "$INV_FILE" "$PLAYBOOK" "$@"; }
 
 echo "🚀 Running Ollama setup with Ansible..."
 echo "Playbook: $PLAYBOOK"
-echo "Inventory: $INVENTORY"
+echo "Inventory: $INV_FILE"
 echo ""
 
 # Check if Ansible is installed
@@ -24,11 +28,7 @@ if ! command -v ansible-playbook &> /dev/null; then
 fi
 
 # Run the playbook
-ansible-playbook \
-    -i "$INVENTORY" \
-    "$PLAYBOOK" \
-    --ask-become-pass \
-    -v
+run_ansible --ask-become-pass -v
 
 echo ""
 echo "✅ Ansible playbook completed!"
