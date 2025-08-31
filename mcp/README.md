@@ -37,3 +37,19 @@ framework that enhances tool integration, accessibility, and AI reasoning capabi
 2. The MCP client forwards the request to the appropriate MCP server.
 3. The MCP server retrieves the required data from a database or API.
 4. The response is sent back to the AI model via the MCP client.
+
+### MCP Server
+
+The main methods for spinning up an MCP server locally are:
+
+* npx
+* uvx
+* docker
+
+## MCP with Open WebUI
+
+Open WebUI supports the Model Context Protocol (MCP) to enhance interactions with AI models. It allows users to define context, requirements, and constraints for model interactions, enabling more effective and controlled
+outputs.
+More information on using MCP with Open WebUI can be found in the [Open WebUI documentation](https://docs.openwebui.com/openapi-servers/mcp/).
+
+### Installation
