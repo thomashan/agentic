@@ -40,8 +40,15 @@ The `README.md` with in a directory will contain responses from the chosen AI mo
 
 [Sound](./sound/README.md)
 
+[Tools](install/README.md)
+
 [Training](./training/README.md)
 
 [Video](./video/README.md)
 
 [Voice](./voice/README.md)
+
+## Installation and setup
+
+Sometimes there is nothing better than right the tools for yourself.
+Head over to the [installation](./install/README.md) section for more details.
