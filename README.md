@@ -12,6 +12,10 @@ Your support helps keep the project alive and encourages further contributions.
 Sometimes there will be a lot of overlap between the models or sections, so please check out each section for more details.
 I am working on a section at a time to deep-dive into each topic, so please be patient as I work through them.
 
+There's nothing better than dog fooding, so some responses are obtained from AIs.
+Where AI was used to generate the response, there should be a `prompt.md` with responses from various AI models.
+The `README.md` with in a directory will contain responses from the chosen AI model.
+
 [Agent](./agent/README.md)
 
 [Coding](./coding/README.md)
