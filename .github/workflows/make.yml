@@ -1,21 +1,21 @@
 # .github/workflows/make.yml
 name: Run Make
 
-on: [push]
+on: [ push ]
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ ubuntu-latest, macos-latest ]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Print uname -m
-      run: uname -m
+      - name: Print uname -m
+        run: uname -m
 
-    - name: Run make
-      run: make
+      - name: Run make
+        run: make
