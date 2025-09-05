@@ -51,4 +51,28 @@ The `README.md` with in a directory will contain responses from the chosen AI mo
 ## Installation and setup
 
 Sometimes there is nothing better than right the tools for yourself.
+The flow of installation and setup is as follows:
+
+1. make (setups miniforge and python)
+2. python (setups ansible)
+3. ansible (setups other tools)
+
+So `make` is required to bootstrap the whole installation process.
+
+### Prerequisite
+
+As mentioned above, `make` is required to bootstrap the whole installation process.
+Once make is present, you can install the rest of the tools.
+
+```
+make
+```
+
+### Installation
+
 Head over to the [installation](./install/README.md) section for more details.
+
+### Ansible
+
+Right now ansible only targets localhost installation.
+But it is possible to install on remote hosts.
