@@ -1,0 +1,64 @@
+name: 'Setup Docker'
+description: 'Ensure Docker CLI and daemon are available on GitHub runners (Ubuntu)'
+author: 'Thomas'
+
+branding:
+  icon: 'anchor'
+  color: 'blue'
+
+inputs:
+  verify:
+    description: 'Run docker version and hello-world test after setup'
+    required: false
+    default: 'false'
+  timeout:
+    description: 'Timeout in seconds for Docker daemon startup'
+    required: false
+    default: '60'
+
+outputs:
+  docker-version:
+    description: 'The version of Docker that was set up'
+    value: ${{ steps.setup-complete.outputs.version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Detect operating system
+      id: os-check
+      shell: bash
+      run: |
+        echo "🔍 Running on $RUNNER_OS ($RUNNER_ARCH)"
+        echo "os=$RUNNER_OS" >> $GITHUB_OUTPUT
+
+    - name: Setup Docker on Linux
+      if: runner.os == 'Linux'
+      shell: bash
+      run: ${{ github.action_path }}/scripts/linux.sh
+
+    - name: Verify Docker installation
+      if: inputs.verify == 'true'
+      id: verify
+      shell: bash
+      run: |
+        echo "::group::Verifying Docker installation"
+        
+        echo "🧪 Running docker version..."
+        docker version
+        
+        echo "🧪 Running docker info..."
+        docker info --format 'Docker {{.ServerVersion}} on {{.OSType}}/{{.Architecture}}'
+        
+        echo "🧪 Testing with hello-world container..."
+        docker run --rm hello-world
+        
+        echo "✅ Docker verification completed successfully"
+        echo "::endgroup::"
+
+    - name: Set output version
+      id: setup-complete
+      shell: bash
+      run: |
+        VERSION=$(docker version --format '{{.Server.Version}}' 2>/dev/null || echo 'unknown')
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "✅ Docker setup completed - version: $VERSION"
