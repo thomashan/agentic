@@ -1,0 +1,108 @@
+---
+- name: Install Prerequisites
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  become: false
+
+  tasks:
+    - name: Install prerequisites for Linux
+      block:
+        - name: Install nvm
+          shell: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
+          args:
+            creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+
+        - name: Install Docker for Debian/Ubuntu
+          block:
+            - name: Install required packages for Docker
+              ansible.builtin.package:
+                name:
+                  - apt-transport-https
+                  - ca-certificates
+                  - curl
+                  - gnupg
+                  - lsb-release
+                state: present
+                update_cache: true
+              become: true
+
+            - name: Install Docker
+              ansible.builtin.package:
+                name:
+                  - docker-ce
+                  - docker-ce-cli
+                  - containerd.io
+                state: present
+              become: true
+
+            - name: Start and enable Docker service
+              systemd:
+                name: docker
+                state: started
+                enabled: true
+              become: true
+
+            - name: Add current user to docker group
+              user:
+                name: "{{ ansible_user_id }}"
+                groups: docker
+                append: true
+              become: true
+          when: ansible_distribution in ['Ubuntu', 'Debian']
+
+        - name: Install Docker for CentOS/RHEL/Fedora
+          block:
+            - name: Install required packages for Docker
+              ansible.builtin.package:
+                name:
+                  - yum-utils
+                  - device-mapper-persistent-data
+                  - lvm2
+                state: present
+              become: true
+              when: ansible_distribution in ['CentOS', 'RedHat']
+
+            - name: Add Docker repository (CentOS/RHEL)
+              get_url:
+                url: https://download.docker.com/linux/centos/docker-ce.repo
+                dest: /etc/yum.repos.d/docker-ce.repo
+              become: true
+              when: ansible_distribution in ['CentOS', 'RedHat']
+
+            - name: Install Docker (CentOS/RHEL)
+              ansible.builtin.package:
+                name:
+                  - docker-ce
+                  - docker-ce-cli
+                  - containerd.io
+                state: present
+              become: true
+              when: ansible_distribution in ['CentOS', 'RedHat']
+
+            - name: Install Docker (Fedora)
+              ansible.builtin.package:
+                name:
+                  - docker-ce
+                  - docker-ce-cli
+                  - containerd.io
+                state: present
+              become: true
+              when: ansible_distribution == 'Fedora'
+
+            - name: Start and enable Docker service
+              systemd:
+                name: docker
+                state: started
+                enabled: true
+              become: true
+
+            - name: Add current user to docker group
+              user:
+                name: "{{ ansible_user_id }}"
+                groups: docker
+                append: true
+              become: true
+          when: ansible_distribution in ['CentOS', 'RedHat', 'Fedora']
+      when: ansible_system == "Linux"

@@ -1,0 +1,20 @@
+---
+- name: Install Prerequisites
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  become: false
+
+  tasks:
+    - name: Install prerequisites for macOS
+      block:
+        - name: Install nvm
+          community.general.homebrew:
+            name: nvm
+            state: present
+
+        - name: Install Docker Desktop
+          community.general.homebrew_cask:
+            name: docker-desktop
+            state: present
+      when: ansible_system == "Darwin"

@@ -1,0 +1,125 @@
+name: Run Ansible - Prerequisite
+
+on: [ push ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          environment-file: environment.yml
+          activate-environment: agentic
+
+      - name: Run OS-specific prerequisite playbook
+        shell: bash -el {0}
+        run: |
+          conda env list
+          conda activate agentic
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            ansible-playbook install/prerequisite/linux.yml
+          else
+            ansible-playbook install/prerequisite/macos.yml
+          fi
+
+      - name: Assert on prerequisite
+        shell: bash -el {0}
+        run: |
+          conda activate agentic
+          
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            echo "🔍 Checking Linux prerequisites..."
+            
+            # Check nvm installation (installed as shell function via curl script)
+            if [ -s "$HOME/.nvm/nvm.sh" ]; then
+              echo "✅ Found nvm.sh, sourcing it..."
+              export NVM_DIR="$HOME/.nvm"
+              source "$NVM_DIR/nvm.sh"
+              
+              if command -v nvm &> /dev/null; then
+                nvm --version
+                echo "✅ nvm is installed and working"
+              else
+                echo "❌ nvm command not available after sourcing"
+                exit 1
+              fi
+            else
+              echo "❌ nvm installation not found at $HOME/.nvm/nvm.sh"
+              exit 1
+            fi
+            
+            # Check Docker
+            if command -v docker &> /dev/null; then
+              docker --version
+              echo "✅ Docker is installed"
+            else
+              echo "❌ Docker not found"
+              exit 1
+            fi
+            
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            echo "🔍 Checking macOS prerequisites..."
+            
+            # Check nvm installation (installed via Homebrew, but still needs sourcing)
+            if [ -s "/opt/homebrew/opt/nvm/nvm.sh" ]; then
+              echo "✅ Found Homebrew nvm.sh, sourcing it..."
+              export NVM_DIR="$HOME/.nvm"
+              source "/opt/homebrew/opt/nvm/nvm.sh"
+              
+              if command -v nvm &> /dev/null; then
+                nvm --version
+                echo "✅ nvm is installed via Homebrew and working"
+              else
+                echo "❌ nvm command not available after sourcing"
+                exit 1
+              fi
+            else
+              echo "❌ nvm not found at /opt/homebrew/opt/nvm/nvm.sh"
+              echo "Checking if nvm is installed via Homebrew..."
+              brew list nvm 2>/dev/null || echo "nvm not installed via Homebrew"
+              # Check alternative Intel Mac location
+              if [ -s "/usr/local/opt/nvm/nvm.sh" ]; then
+                echo "✅ Found Intel Mac nvm.sh, sourcing it..."
+                export NVM_DIR="$HOME/.nvm"
+                source "/usr/local/opt/nvm/nvm.sh"
+                
+                if command -v nvm &> /dev/null; then
+                  nvm --version
+                  echo "✅ nvm is installed via Homebrew (Intel Mac) and working"
+                else
+                  echo "❌ nvm command not available after sourcing (Intel Mac)"
+                  exit 1
+                fi
+              else
+                echo "❌ nvm not found at /usr/local/opt/nvm/nvm.sh either"
+                exit 1
+              fi
+            fi
+            
+            # Check Docker Desktop installation
+            if [ -d "/Applications/Docker.app" ]; then
+              echo "✅ Docker Desktop is installed"
+              # Check if docker command is available (Docker Desktop might not be running)
+              if command -v docker &> /dev/null; then
+                docker --version
+                echo "✅ Docker CLI is available"
+              else
+                echo "⚠️  Docker CLI not in PATH (Docker Desktop may need to be started)"
+              fi
+            else
+              echo "❌ Docker Desktop not found in /Applications/"
+              exit 1
+            fi
+          else
+            echo "❌ Unsupported operating system: $RUNNER_OS"
+            exit 1
+          fi
