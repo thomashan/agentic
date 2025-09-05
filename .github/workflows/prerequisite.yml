@@ -38,13 +38,13 @@ jobs:
           
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             echo "🔍 Checking Linux prerequisites..."
-            
+          
             # Check nvm installation (installed as shell function via curl script)
             if [ -s "$HOME/.nvm/nvm.sh" ]; then
               echo "✅ Found nvm.sh, sourcing it..."
               export NVM_DIR="$HOME/.nvm"
               source "$NVM_DIR/nvm.sh"
-              
+          
               if command -v nvm &> /dev/null; then
                 nvm --version
                 echo "✅ nvm is installed and working"
@@ -56,7 +56,7 @@ jobs:
               echo "❌ nvm installation not found at $HOME/.nvm/nvm.sh"
               exit 1
             fi
-            
+          
             # Check Docker
             if command -v docker &> /dev/null; then
               docker --version
@@ -65,16 +65,16 @@ jobs:
               echo "❌ Docker not found"
               exit 1
             fi
-            
+          
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             echo "🔍 Checking macOS prerequisites..."
-            
+          
             # Check nvm installation (installed via Homebrew, but still needs sourcing)
             if [ -s "/opt/homebrew/opt/nvm/nvm.sh" ]; then
               echo "✅ Found Homebrew nvm.sh, sourcing it..."
               export NVM_DIR="$HOME/.nvm"
               source "/opt/homebrew/opt/nvm/nvm.sh"
-              
+          
               if command -v nvm &> /dev/null; then
                 nvm --version
                 echo "✅ nvm is installed via Homebrew and working"
@@ -91,7 +91,7 @@ jobs:
                 echo "✅ Found Intel Mac nvm.sh, sourcing it..."
                 export NVM_DIR="$HOME/.nvm"
                 source "/usr/local/opt/nvm/nvm.sh"
-                
+          
                 if command -v nvm &> /dev/null; then
                   nvm --version
                   echo "✅ nvm is installed via Homebrew (Intel Mac) and working"
@@ -104,7 +104,7 @@ jobs:
                 exit 1
               fi
             fi
-            
+          
             # Check Docker Desktop installation
             if [ -d "/Applications/Docker.app" ]; then
               echo "✅ Docker Desktop is installed"
