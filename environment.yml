@@ -4,5 +4,5 @@ channels:
 dependencies:
   - ansible=11.8.0
   - pytest=8.4.1
-  - python=3.13
+  - python=3.12
   - uv=0.8.2
