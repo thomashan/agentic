@@ -1,0 +1,10 @@
+name: 'Setup Miniforge'
+description: 'Downloads and installs Miniforge'
+author: 'Thomas'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Miniforge
+      shell: bash
+      run: ${{ github.action_path }}/setup.sh

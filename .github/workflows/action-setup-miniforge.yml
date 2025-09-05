@@ -1,0 +1,30 @@
+name: Test Miniforge Setup
+
+on:
+  push:
+    paths:
+      - '.github/actions/setup-miniforge/**'
+      - '.github/workflows/action-setup-miniforge.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-13 ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Miniforge
+        uses: ./.github/actions/setup-miniforge
+
+      - name: Verify Conda Installation
+        shell: bash
+        run: |
+          echo "Verifying conda installation..."
+          conda --version
+          conda info
+          which conda
