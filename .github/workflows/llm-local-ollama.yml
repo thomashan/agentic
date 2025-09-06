@@ -1,0 +1,35 @@
+name: Run Ansible - LLM/Local/Ollama
+
+on: [ push ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          environment-file: environment.yml
+          activate-environment: agentic
+
+      - name: Setup Docker
+        uses: ./.github/actions/setup-docker
+
+      - name: Install ollama
+        shell: bash -el {0}
+        run: |
+          conda env list
+          conda activate agentic
+          ansible-playbook install/llm/local/ollama-setup.yml
+
+      - name: Assert on ollama port
+        run: |
+          nc -z -v localhost 11434
