@@ -52,4 +52,16 @@ Open WebUI supports the Model Context Protocol (MCP) to enhance interactions wit
 outputs.
 More information on using MCP with Open WebUI can be found in the [Open WebUI documentation](https://docs.openwebui.com/openapi-servers/mcp/).
 
-### Installation
+### Installation MCPO
+
+There is no installation required for MCPO.
+Both `uvx` and `pipx` can be used to run MCPO.
+
+e.g.
+
+```
+# using uvx
+uvx mcpo --port 8000 -- your_mcp_server_command
+# using pipx
+pipx run mcpo --port 8000 -- your_mcp_server_command
+```
