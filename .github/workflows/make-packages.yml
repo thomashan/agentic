@@ -1,0 +1,50 @@
+# .github/workflows/make.yml
+name: Make packages
+
+on: [ push ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          environment-file: environment.yml
+          activate-environment: agentic
+
+      - name: Check for python
+        shell: bash -el {0}
+        run: command -v python
+
+      - name: Check for pytest
+        shell: bash -el {0}
+        run: command -v pytest
+
+      - name: Check for ansible-playbook
+        shell: bash -el {0}
+        run: command -v ansible-playbook
+
+      - name: Check for uv
+        shell: bash -el {0}
+        run: command -v uv
+
+      - name: Check for uvx
+        shell: bash -el {0}
+        run: command -v uvx
+
+      - name: Check for pip
+        shell: bash -el {0}
+        run: command -v pip
+
+      - name: Check for pipx
+        shell: bash -el {0}
+        run: command -v pipx

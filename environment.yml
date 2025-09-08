@@ -3,6 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - ansible=11.8.0
+  - pipx=1.7.1
   - pytest=8.4.1
   - python=3.12
   - uv=0.8.2
