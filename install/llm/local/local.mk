@@ -1,4 +1,4 @@
-include make/config.mk
+include config/config.mk
 # install/Makefile
 
 .PHONY: install-llm-local-ollama install-llm-local-help
