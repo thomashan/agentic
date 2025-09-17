@@ -1,3 +1,6 @@
+include make/config.mk
+include install/install.mk
+
 .DEFAULT_GOAL := activate-conda-env
 
 # Colors (disable in CI)
@@ -117,8 +120,14 @@ activate-conda-env: create-conda-env
 
 
 help:
+	@echo "Usage: make [target]"
+	@echo "All targets should be executed from the root directory. (i.e., where this Makefile is located)"
+	@echo ""
 	@echo "Available targets:"
-	@echo "  create-conda-env   - Creates the conda environment. Run this after 'setup' and after restarting your terminal."
-	@echo "  activate-conda-env - Shows the command to activate the conda environment."
-	@echo "  install-miniforge  - Install Miniforge if not already present."
-	@echo "  help               - Show this help message"
+	@printf $(HELP_FORMAT) "install-homebrew" "Installs homebrew for macOS only."
+	@printf $(HELP_FORMAT) "install-miniforge" "Installs Miniforge."
+	@printf $(HELP_FORMAT) "create-conda-env" "Creates the conda environment 'agentic'."
+	@printf $(HELP_FORMAT) "activate-conda-env" "Shows the command to activate the conda environment."
+	@printf $(HELP_FORMAT) "help" "Shows this help message."
+	@echo ""
+	@$(MAKE) install-help
