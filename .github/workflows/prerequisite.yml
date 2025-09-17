@@ -25,11 +25,7 @@ jobs:
         run: |
           conda env list
           conda activate agentic
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            ansible-playbook install/prerequisite/linux.yml
-          else
-            ansible-playbook install/prerequisite/macos.yml
-          fi
+          make install-prerequisites
 
       - name: Assert on prerequisite
         shell: bash -el {0}

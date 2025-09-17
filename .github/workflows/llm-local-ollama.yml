@@ -28,7 +28,7 @@ jobs:
         run: |
           conda env list
           conda activate agentic
-          ansible-playbook install/llm/local/ollama-setup.yml
+          make install-llm-local-ollama
 
       - name: Assert on ollama port
         run: |

@@ -17,5 +17,8 @@ jobs:
       - name: Print uname -m
         run: uname -m
 
+      - name: Run make help
+        run: make help
+
       - name: Run make
         run: make
