@@ -22,6 +22,5 @@ install-prerequisites:
 install-help:
 	@echo "install/install.mk targets"
 	@printf $(HELP_FORMAT) "install-prerequisites" "Installs prerequisites like Docker and nvm."
-	@printf $(HELP_FORMAT) "install-help" "Shows this help message."
 	@echo ""
 	@$(MAKE) install-llm-local-help

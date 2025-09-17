@@ -16,4 +16,3 @@ install-llm-local-help:
 	@echo "install/llm/local/local.mk targets"
 	@printf $(HELP_FORMAT) "install-llm-local-ollama" "Installs Ollama."
 	@printf $(HELP_FORMAT) "install-llm-local-open-webui" "Start Open WebUI."
-	@printf $(HELP_FORMAT) "install-llm-local-help" "Shows this help message."

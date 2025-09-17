@@ -1,1 +1,1 @@
-HELP_FORMAT := "  %-25s - %s\n"
+HELP_FORMAT := "  %-30s - %s\n"
