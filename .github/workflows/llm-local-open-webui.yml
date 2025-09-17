@@ -1,0 +1,32 @@
+name: Run Ansible - LLM/Local/Open WebUI
+
+on: [ push ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          environment-file: environment.yml
+          activate-environment: agentic
+
+      - name: Run Open WebUI
+        shell: bash -el {0}
+        run: |
+          conda env list
+          conda activate agentic
+          make install-llm-local-open-webui
+
+      - name: Assert on Open WebUI port
+        run: |
+          nc -z -v localhost 8080

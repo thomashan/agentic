@@ -1,3 +1,5 @@
 # intellij
 .idea/
 *.iml
+
+.webui_secret_key
