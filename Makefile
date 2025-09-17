@@ -1,4 +1,4 @@
-include make/config.mk
+include config/config.mk
 include install/install.mk
 
 .DEFAULT_GOAL := activate-conda-env

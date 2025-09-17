@@ -1,6 +1,6 @@
 # install/Makefile
 
-include make/config.mk
+include config/config.mk
 include install/llm/local/local.mk
 
 .PHONY: install-prerequisites install-help
