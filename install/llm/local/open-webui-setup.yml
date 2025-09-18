@@ -20,5 +20,5 @@
       ansible.builtin.wait_for:
         port: 8080
         host: localhost
-        timeout: 120
+        timeout: 240
         state: started

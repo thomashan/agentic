@@ -2,4 +2,8 @@
 .idea/
 *.iml
 
+# open webui
 .webui_secret_key
+
+# aider coding cli
+.aider*
