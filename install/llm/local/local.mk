@@ -13,6 +13,6 @@ install-llm-local-open-webui:
 	ansible-playbook install/llm/local/open-webui-setup.yml
 
 install-llm-local-help:
-	@echo "install/llm/local/local.mk targets"
+	@echo "$(ORANGE_BOLD)install/llm/local/local.mk targets$(RESET)"
 	@printf $(HELP_FORMAT) "install-llm-local-ollama" "Installs Ollama."
 	@printf $(HELP_FORMAT) "install-llm-local-open-webui" "Start Open WebUI."

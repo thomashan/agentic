@@ -20,7 +20,7 @@ install-prerequisites:
 	fi
 
 install-help:
-	@echo "install/install.mk targets"
+	@echo "$(ORANGE_BOLD)install/install.mk targets$(RESET)"
 	@printf $(HELP_FORMAT) "install-prerequisites" "Installs prerequisites like Docker and nvm."
 	@echo ""
 	@$(MAKE) install-llm-local-help
